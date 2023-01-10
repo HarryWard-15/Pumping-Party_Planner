@@ -1,6 +1,7 @@
 <!DOCTYPE html>
     <head>
         <title>Pumping Party Planner</title>
+        <!-- Stylesheet Links -->
         <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
         <link rel="stylesheet" href="./assets/css/reset.css">
@@ -11,39 +12,40 @@
         <nav>
             <h1 class="pt-20 text-white title text-6xl text-center font-extrabold">Pumping Party Planner</h1>
         </nav>
+        <a class="link z-10" href="./assets/plannedParty.html">View Your Party</a>
         <!-- Contianter for choice cards -->
-        <section class="fixed flex justify-center w-screen h-screen mt-20">
+        <section class="z-0 fixed flex justify-center w-screen h-screen mt-20">
           <!-- music card -->
           <div class="flex border-gradient mr-10">
             <section class="music-select card object-fill font-bold border rounded-3xl" role="button">
               <h2 class="text-4xl bg-slate-400">Select your Music</h2>
-              <img src="./assets/imgs/music.jpg">
+              <img class="cardimg" src="./assets/imgs/music.png">
             </section>
           </div>
           <!-- cocktail card -->
             <div class="flex border-gradient ml-10">
               <section class="cocktail-select card font-bold border rounded-3xl" id="cocktail-select" role="button">
                 <h2 class="text-4xl">Select your Cocktails</h2>
-                <img src="./assets/imgs/cocktail.jpg">
+                <img class='cardimg'src="./assets/imgs/cocktail.png">
               </section>
             </div>
         </section>
         <!-- Play/Pause button -->
-        <section>
+        <!-- <section>
             <img class="absolute playpause bottom-0 right-0 w-20 m-10" src="./assets/imgs/playbutton.png">
-        </section>
+        </section> -->
         <!-- Music Modal -->
         <section class = "hidden" id="music-modal">
-            <div class="relative z-10 modal-lg" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="relative z-10 " aria-labelledby="modal-title" role="dialog" aria-modal="true">
               <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
               <div class="fixed inset-0 z-10 overflow-y-auto">
                 <!-- contents of modal -->
-                <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                  <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                <div class="flex h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                  <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all w-3/4 modalContainer max-w-7xl">
                     <!-- modal intro section -->
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                       <!-- close modal button -->
-                      <span class="float-right cursor-pointer" id="close-music-modal"><i class="fas fa-window-close"></i></span>
+                      <span class="float-right cursor-pointer" id="close-music-modal"><i class="fas fa-window-close fa-xl" aria-hidden="true"></i><span class="sr-only">Close Window</span></span>
                       <div class="sm:flex sm:items-start">
                         <!-- Music Icon in circle -->
                         <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-cadet-blue sm:mx-0 sm:h-10 sm:w-10">
@@ -132,17 +134,17 @@
               </div>
             </div>
         </section>
-        <!--Cocktail Modal-->
+        <!-- Cocktail Modal -->
         <div id="cocktail-modal" class="hidden">
             <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true" >
               
               <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
                 <div class="fixed inset-0 z-10 overflow-y-auto">
-                    <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                    <div class="flex h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                     
-                    <div class="relative transform overflow-y-auto rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                    <div class="relative transform overflow-y-auto rounded-lg bg-white text-left shadow-xl transition-all modalContainer">
                         <div class="bg-white px-4 pt-5 pb-1 sm:p-6 sm:pb-4">
-                            <span class="float-right cursor-pointer" id="close-modal"><i class="fas fa-window-close"></i></span>
+                            <span class="float-right cursor-pointer" id="close-modal"><i class="fas fa-window-close fa-xl" aria-hidden="true"></i><span class="sr-only">Close Window</span></span>
                             <div class="sm:flex sm:items-start">
                                 <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-cadet-blue sm:mx-0 sm:h-10 sm:w-10">
                                     <i class="fas fa-cocktail"></i>
@@ -234,7 +236,8 @@
             </div>
         </div>
     </div>  
-        </div>  
+        </div> 
+     <!-- Script links -->
     <script src="https://kit.fontawesome.com/b3cf47db47.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>

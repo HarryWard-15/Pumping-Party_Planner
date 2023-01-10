@@ -57,7 +57,6 @@ function displayImage(event) {
     imgEl.setAttribute("src", imgValue);
     imgEl.setAttribute("data-id", cocktailID);
     imgEl.setAttribute("data-ingred", ingredients);
-    //style image ensuring cursor is a "hand"
     //indicates its a clickable element
     imgEl.classList.add("rounded-b-2xl");
     
@@ -110,9 +109,7 @@ function getAllIngredients(dataObj){
 function displayData(data){
     //unhide the search-results element
     searchResultsEl.classList.remove("hidden");
-    //let ulEl = document.createElement('ul');
-    //let liEl;
-    //let linkEl;
+    
     let strIngredients = '';
     //get stored cocktails so we can use a different colour for these when displaying them
     let storedCocktails = localStorage.getItem("cocktails");
@@ -135,6 +132,7 @@ function displayData(data){
         pEl.classList.add("block");
         pEl.classList.add("w-full");
         pEl.setAttribute("id", "search-count");
+        pEl.classList.add("text-center");
     }
     //set value of search count to display the number of cocktails returned from the search
     pEl.innerHTML = "Search Results - " + data.drinks.length + " cocktail(s) found";
@@ -144,7 +142,7 @@ function displayData(data){
     //loop through search results array and create row in table for each result
     for (var i = 0; i < data.drinks.length; i++){
         blAlreadySaved = false;
-        //check if this cocktail was already saved and set boolead blAlreadySaved
+        //check if this cocktail was already saved and set boolean blAlreadySaved
         if (storedCocktails != null && storedCocktails != "") {
             arrayCocktails = JSON.parse(storedCocktails);
             if (arrayCocktails.filter(e => e.id === data.drinks[i].idDrink).length !== 0) {
@@ -163,7 +161,7 @@ function displayData(data){
         strIngredients = getAllIngredients(data.drinks[i]).join("#");
 
         //1st column in table - font awesome cocktail icon 
-        td1.innerHTML ='<i class="fas fa-cocktail"></i>';
+        td1.innerHTML ='<i class="fas fa-cocktail" aria-hidden="true"></i>';
 
         //add data-set so these can be used if needed when icon is clicked
         if (strIngredients.length > 0) {
@@ -172,7 +170,6 @@ function displayData(data){
         td1.setAttribute("data-img", data.drinks[i].strDrinkThumb);
         td1.setAttribute("data-id", data.drinks[i].idDrink);
         td1.setAttribute("data-name", data.drinks[i].strDrink);
-        //td1.addEventListener("click", displayImage);
        
         //style 1st column - turn it orange if cocktail has been saved
         td1.classList.add("pr-2");
@@ -205,7 +202,7 @@ function displayData(data){
         td2.addEventListener("click", getIngredients);
         //3rd column in table - holds icon which when clicked opens cocktail image
         //font awesome picture icon
-       td3.innerHTML = '<i class="fa-solid fa-image"></i>';
+       td3.innerHTML = '<i class="fa-solid fa-image" aria-hidden="true"></i><span class="sr-only">Image</span>';
        td3.classList.add("cursor-pointer");
        //add tooltip so when you hover it gives instructions 
         td3.setAttribute("data-bs-toggle","tooltip");
@@ -230,11 +227,11 @@ function displayData(data){
         //4th column in table - hold save icon or tick icon
         if (blAlreadySaved) {
             //if cocktail saved display tick and colour orange
-            td4.innerHTML = '<i class="fa-solid fa-check"></i>';
+            td4.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i>';
             td4.classList.add("dark-orange");  
         } else {
             //otherwise dsplay "save" icon
-            td4.innerHTML = '<i class="far fa-save"></i>';
+            td4.innerHTML = '<i class="far fa-save" aria-hidden="true"></i><span class="sr-only">Save</span>';
             td4.classList.add("cursor-pointer");
             //add tooltip so when hover instructions are displayed
             td4.setAttribute("data-bs-toggle","tooltip");
@@ -260,16 +257,15 @@ function displayData(data){
     }
    
     //create scroll around results
+    //only scroll in y direction
     searchResultsEl.classList.add("h-full");
     searchResultsEl.classList.add("max-h-full");
-    //only scroll in y direction
+    
     searchResultsEl.classList.add("overflow-y-auto");
     searchResultsEl.classList.add("max-w-full");
     //add p element before search results tells how many results were returned
     resultsEl.parentNode.insertBefore(pEl, resultsEl);
     searchResultsEl.appendChild(table);
-    
-    //searchResultsEl.addEventListener("click", getIngredients);
 }
 
 //ingredients are returned from API as separate strings (up to 15 of them).
@@ -330,9 +326,7 @@ function displayIngredients(data) {
     searchImageEl.classList.add("my-auto");
     searchImageEl.classList.add("cocktail-border");
     searchImageEl.classList.add("p-0");
-    searchImageEl.classList.add("ml-2");
-    
-    
+    searchImageEl.classList.add("ml-2");   
 }
 
 //main call to API
@@ -371,7 +365,6 @@ function callAPI(filterType, searchType, searchCriteria) {
         .catch(function(error){
             //no data found in API search - tell user
             displayError("Sorry nothing matches your search. Please try again.");
-            //alert("Sorry nothing matches your search. Please try again."); 
             return null;
         }
         );
@@ -457,7 +450,6 @@ function searchHandler() {
         //user chose "name" search, check they entered a cocktail name
         if (!isValid("cocktail-name")){
             displayError("Please enter the cocktail name.");
-            //alert("Please enter the cocktail name.");
             return;
         }
         //set up parameters for API call
@@ -470,7 +462,6 @@ function searchHandler() {
        
         if (!isValid("cocktail-ingredient")){
             displayError("Please enter the ingredient name.");
-            //alert("Please enter the ingredient name.")
             return;
         }
         //setup parameter for API call
@@ -503,9 +494,7 @@ function openModal() {
     //show modal
     cocktailModalEl.classList.remove("hidden");
     //get access to "randomise button", and add eventlistener
-    //!!!! var cancelEl = document.querySelector("#random-button");
     var cancelEl = document.querySelector("#cancel-button");
-    //cancelEl.addEventListener("click", closeModal);
     cancelEl.addEventListener("click", randomize);
     //add eventlistener to radion buttons     
     radioEl.addEventListener("click", chooseOption);
@@ -585,7 +574,7 @@ function saveCocktail(event) {
         //turn saved cocktail orange to indicate saved
         $(`td[data-id='${cocktailID}']`).addClass("dark-orange");  
         //change icon to indicate saved cocktail    
-        chosenDrink.innerHTML = "<i class='fa-solid fa-check'></i>";
+        chosenDrink.innerHTML = "<i class='fa-solid fa-check' aria-hidden='true'></i>";
     } else {
         //we dont already have the ingredients - need to make new API call to get them
         let requestUrl = `https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${searchCriteria}`;
@@ -623,11 +612,10 @@ function saveCocktail(event) {
             //turn orange to indicate saved
             $(`td[data-id='${cocktailID}']`).addClass("dark-orange"); 
             //change icon to tick - indiate saved  
-            chosenDrink.innerHTML = "<i class='fa-solid fa-check'></i>";
+            chosenDrink.innerHTML = "<i class='fa-solid fa-check' aria-hidden='true'></i>";
        })
         .catch(function(error){
             displayError("Error saving cocktails details, please try again.");
-            //alert("Error saving cocktails details, please try again."); 
             return null;
         }
         );   
@@ -682,8 +670,8 @@ $(function () {
       searchButtonEl.addEventListener("click", searchHandler);
       closeModalEl.addEventListener("click", closeModal);
       closeButtonEl.addEventListener("click", closeErrorModal);
-      //closeModalEl.addEventListener("click", randomize);
+      
   });
 
-
+//Clear storage when testing
 //localStorage.clear("cocktails");

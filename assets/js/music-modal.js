@@ -19,7 +19,9 @@ let musicImgContainerEl = document.querySelector("#music-image");
 let musicImgEl = document.createElement("img");
 
 //local storage variables
+let musicAlreadySaved;
 let artistId = JSON.parse(localStorage.getItem("artist_id"));
+let storedMusic;
 
 //Button variables
 let selectMusicBtnEl = document.querySelector(".music-select");
@@ -33,7 +35,6 @@ let closeMusicBtnEl = document.querySelector("#close-music-modal");
 let closeErrorModalBtnEl = document.querySelector("#music-error-close-button"); 
 // console.log(closeMusicBtnEl); //used for debugging
 var musicRadioEl = document.querySelector("#music-radio-buttons");
-// console.log(musicRadioEl); //used for debugging
 
 // DESCRIPTION: Function - brings up music modal dialog 
 let openMusicModalFnc = function(){
@@ -51,18 +52,18 @@ let openMusicModalFnc = function(){
     console.log("openMusicModalFnc is reading"); //used for debugging
 };
 
-//FIXME: need to remove the radio button values. DESCRIPTION: function to close music modal
+//DESCRIPTION: function to close music modal
 let closeMusicModalFnc = function () { 
     removeAllPreviousChildren(musicImgContainerEl);
     musicModalEl.classList.add('hidden');
     console.log("closeMusicModalFnc is reading"); //used for debugging
-    $("input[name='search-choice']:checked").val(); //FIXME: need to remove the radio button values. 
+    apiSearchValue = "";
 };
 
-//FIXME: not reading error message! DESCRIPTION: function to create API parameters based on user preferences
+//DESCRIPTION: function to create API parameters based on user preferences
 let userSelectionFnc = function () {
     userRadioChoice = $("input[name='search-choice']:checked").val();
-    
+    // console.log(userRadioChoice);
     if (userRadioChoice == "artist"){
         musicSearchResultsEl.classList.add('hidden');
         genreSearchEl.classList.add('hidden');
@@ -75,21 +76,23 @@ let userSelectionFnc = function () {
         apiSearchValue = $("#genre-search").val();
         genreSearchEl.classList.remove('hidden');
     }
-    else if  (typeof userRadioChoice == "undefined"){
-        console.log("help!");
-        musicErrorModalEl.classList.remove("hidden");
-        $("#music-error-modal-text").text("Please select a search criteria");//FIXME: this is not being triggered.
+    else {
+        apiSearchValue = "";      
         return;
     }
 };
 
-//COMPLETE! DESCRIPTION: function calling API - using musicbrainz API
+//DESCRIPTION: function calling API - using musicbrainz API
 let callMusicApiFnc = function (){
     userSearchValue = $("#artist-value").val() || $("#genre-value").val(); 
     let musicApi = musicBaseApi + apiSearchValue + "/?query=" + apiSearchValue + ":" + userSearchValue + "&fmt=json";
-    // console.log(musicApi); //used for debugging
-            
-    if (apiSearchValue == "genre"){
+    console.log(musicApi); //used for debugging
+    console.log(apiSearchValue); //used for debugging
+    if (apiSearchValue == ""){
+        let errorMessage = "Please select a search criteria";
+        displayErrorModalFnc(errorMessage);        
+    }
+    else if (apiSearchValue == "genre"){
         let errorMessage = "We are still working on sourcing our Genre information. Try searching an artist.";
         displayErrorModalFnc(errorMessage);        
     }
@@ -108,10 +111,14 @@ let callMusicApiFnc = function (){
                     console.log(data); //used for debugging 
                 if (response.ok) {
                     let artistIdData = data.artists[0].id;
+                    let artistNameData = data.artists[0].name;
                     localStorage.setItem("artist_id", JSON.stringify(artistIdData));
                     // console.log("from fetch - artistID: " + artistIdData); //used for debugging
                     artistId = JSON.parse(localStorage.getItem("artist_id"));
                     // console.log("artistID from within fetch (post parsing): " + artistId); //used for debugging 
+                    localStorage.setItem("artist_name", JSON.stringify(artistNameData));
+                    artistName = JSON.parse(localStorage.getItem("artist_name"));
+                    console.log(artistName); //used for debugging
                     displayArtistAlbumListFnc();
                 }
                 else{
@@ -128,7 +135,7 @@ let callMusicApiFnc = function (){
     }
 };
 
-//FIXME: Add Saved Styling DESCRIPTION: function to display artist album - using musicbrainz API
+//FIXME: causing bug - no data displayed. check if album already saved DESCRIPTION: function to display artist album - using musicbrainz API
 let displayArtistAlbumListFnc = function() {
     let artistAlbumListApi = musicBaseApi + "release-group?" + apiSearchValue + "=" + artistId + "&type=album" + "&fmt=json";
     // console.log(artistAlbumListApi); //used for debugging 
@@ -151,7 +158,9 @@ let displayArtistAlbumListFnc = function() {
                     for (var i = 0; i < releaseGroups.length; i++) {
                         albumList.push(releaseGroups[i].title);
                         albumId.push(releaseGroups[i]["primary-type-id"]); //used when working on album artwork developments
+                        console.log(releaseGroups[i].title);
                     }
+                    // console.log(album);
                     // console.log(albumList); // used for debugging
                     // console.log(albumId); // used for debugging
                     // console.log(albumId[0]); //used for debugging 
@@ -162,6 +171,17 @@ let displayArtistAlbumListFnc = function() {
                     albumListEl.textContent = albumList;
                     let musicTableEl = document.createElement("table");
                     for (var i = 0; i < albumList.length; i++) {
+                        musicAlreadySaved = false;
+
+                        //FIXME: causing bug - no data displayed. check if album already saved
+                        if (storedMusic != null && storedMusic !== "") {
+                            arrayMusic = JSON.parse(storedMusic);
+                            console.log(arrayMusic.filter(e => e.album === releaseGroups[i].title));
+                            if (arrayMusic.filter(e => e.album === releaseGroups[i].title).length !== 0) {
+                                musicAlreadySaved = true;
+                            }
+                        }
+
                         // creating table html for albums to be entred into 
                         let mtr = document.createElement("tr");
                         let mtd1 = document.createElement("td");
@@ -172,9 +192,16 @@ let displayArtistAlbumListFnc = function() {
                         //first column = album icon from font awesome.
                         mtd1.innerHTML = '<i class="fa-solid fa-compact-disc"></i>';
                         mtd1.classList.add("pr-2");
-                        // mtd1.innerHTML = '<i class="fa-solid fa-music"></i>'; //TODO: icon for tracks.
+                        // mtd1.innerHTML = '<i class="fa-solid fa-music"></i>'; //icon for tracks when Pumping Party Planner is developed.
 
-                        //TODO: add saved styling
+                        //gives icon API data
+                        mtd1.setAttribute("artist", artistName);
+                        mtd1.setAttribute("album-name", albumList[i]);
+
+                        //style if previously saved - turn orange
+                        if(musicAlreadySaved){
+                            mtd1.classList.add("dark-orange");
+                        }
 
                         //second column = artist name 
                         mtd2.classList.add("text-lg");
@@ -187,9 +214,16 @@ let displayArtistAlbumListFnc = function() {
                         mtd2.classList.add("pr-2");
                         mtd2.setAttribute("data-bs-toggle","tooltip");
                         mtd2.setAttribute("title", "Click to see album tracks.");
+                        //gives icon API data
+                        mtd2.setAttribute("artist", artistName);
+                        mtd2.setAttribute("album-name", albumList[i]);
 
-                        //TODO: add saved styling
-                        //Event listener to list tracks once album name is clicked TODO: create function!
+                        //style if previously saved - turn orange
+                        if(musicAlreadySaved){
+                            mtd2.classList.add("dark-orange");
+                        }
+
+                        //Event listener to list tracks once album name is clicked - for future developments
                         mtd2.addEventListener("click", displayTracksFnc);
 
                         //third column = img icon from font awesome. User to click to display album artwork
@@ -200,21 +234,34 @@ let displayArtistAlbumListFnc = function() {
                         //add tooltip so when you hover it gives instructions 
                         mtd3.setAttribute("data-bs-toggle","tooltip");
                         mtd3.setAttribute("title", "Click to view album artwork.");
+                        mtd3.setAttribute("album-name", albumList[i]);
 
-                        //TODO: add saved styling 
-                        //Event listener to list tracks once album name is clicked TODO: create function!
+                        //style if previously saved - turn orange
+                        if(musicAlreadySaved){
+                            mtd3.classList.add("dark-orange");
+                        }
+
+                        //Event listener to list tracks once album name is clicked
                         mtd3.addEventListener("click", displayArtworkFnc);
 
                         //fourth column = save/tick icon from font awesome depending on whether album is saved.
-                        //TODO: add saved styling [if function/else]
+                        //style if previously saved - turn orange
+                        if(musicAlreadySaved){
+                            mtd4.innerHTML = '<i class="fa-solid fa-check"></i>';
+                            mtd4.classList.add("dark-orange");
+                        }
+                        else {
                         mtd4.innerHTML = '<i class="far fa-save"></i>';
                         mtd4.classList.add("cursor-pointer");
                         //add tooltip so when hover instructions are displayed
                         mtd4.setAttribute("data-bs-toggle","tooltip");
                         mtd4.setAttribute("title", "Click to save album name.");
-
-                        //Event listener to save album when save icon clicked TODO: create function!
+                        //gives icon API data
+                        mtd4.setAttribute("artist", artistName);
+                        mtd4.setAttribute("album-name", albumList[i]);
+                        //Event listener to save album when save icon clicked 
                         mtd4.addEventListener("click", saveAlbumFnc);
+                        }
 
                         //add all colums to each row
                         mtr.appendChild(mtd1);
@@ -237,7 +284,7 @@ let displayArtistAlbumListFnc = function() {
         })
 };
 
-//COMPLETE! DESCRIPTION: function to display selected album tracks - using musicbrainz API
+//DESCRIPTION: function to display selected album tracks - using musicbrainz API
 let displayTracksFnc = function(){
     let errorMessage = "We are still working on sourcing our track information. Please try again later!";
     displayErrorModalFnc(errorMessage);
@@ -245,58 +292,89 @@ let displayTracksFnc = function(){
     console.log("displayTracksFnc is reading"); //used to confirm function is reading
 };
 
-//FIXME: Img size is huge! DESCRIPTION: function to display artwork - using musicbrainz API
+//DESCRIPTION: function to display artwork - using musicbrainz API
 let displayArtworkFnc = function(){
 
-    musicImgEl.src = "assets/imgs/blank-img.png";
-    musicImgEl.classList.add('rounded-b-2xl');
+    // Artwork development code:
+    // musicImgEl.src = "assets/imgs/blank-img.png";
+    // musicImgEl.classList.add('rounded-b-2xl');
 
-    musicImgContainerEl.appendChild(musicImgEl);
-    musicImgContainerEl.classList.add('mx-auto');
-    musicImgContainerEl.classList.add('my-auto');
-    musicImgContainerEl.classList.add('cocktail-border');
-    musicImgContainerEl.classList.add('p-0');
-    musicImgContainerEl.classList.add('ml-2');
-    musicImgContainerEl.classList.remove('hidden');
+    // musicImgContainerEl.appendChild(musicImgEl);
+    // musicImgContainerEl.classList.add('mx-auto');
+    // musicImgContainerEl.classList.add('my-auto');
+    // musicImgContainerEl.classList.add('cocktail-border');
+    // musicImgContainerEl.classList.add('p-0');
+    // musicImgContainerEl.classList.add('ml-2');
+    // musicImgContainerEl.classList.remove('hidden');
 
-
-    // let errorMessage = "We are still working on sourcing our Album Artwork. Please try again later!";
-    // displayErrorModalFnc(errorMessage);
+    let errorMessage = "We are still working on sourcing our Album Artwork. Please try again later!";
+    displayErrorModalFnc(errorMessage);
 
     console.log("displayArtworkFnc is reading"); //used to confirm function is reading
 
 };
 
 //DESCRIPTION: function to display artwork - using musicbrainz API
-//TODO: create function!
 function saveAlbumFnc (event){
-    //determin album selected
+    //Ensure no further events are triggered
+    event.stopPropagation();
+    //Determin which album was selected
     let chosenAlbum = event.currentTarget;
-    console.log(chosenAlbum);
+    // console.log(chosenAlbum); //used for debugging
+    //Get album details
+    let albumName = chosenAlbum.getAttribute("album-name");
+    let artist = chosenAlbum.getAttribute("artist");
+    let arrayMusic; 
+    //get previously user stored details
+    let storedMusic = localStorage.getItem("storedMusic"); 
+
+    let currentMusic = {
+        artist: artist,
+        album: albumName
+    };
+    // if first time storing, create blank array and add to array
+    if(storedMusic == null){
+        arrayMusic = [currentMusic];
+    }
+    else{ 
+        //when already stored.
+        arrayMusic = JSON.parse(storedMusic);
+        console.log(arrayMusic);
+        if (arrayMusic.filter(e => e.album === albumName).length === 0) {
+            arrayMusic.push(currentMusic);
+        }
+    }
+
+    //store to local storage
+    localStorage.setItem("storedMusic", JSON.stringify(arrayMusic));
+
+    //trigger saved style to indicate item saved successfully
+    $(`td[album-name='${albumName}']`).addClass("dark-orange");
+    chosenAlbum.innerHTML = "<i class='fa-solid fa-check'></i>";
 
     console.log("saveAlbumFnc is reading"); //used to confirm function is reading
 };
 
-//COMPLETE! DESCRIPTION: function to display error modal - called in various functions
+//DESCRIPTION: function to display error modal - called in various functions
 let displayErrorModalFnc = function(message){
     let musicErrorModalEl = document.querySelector('#music-error-modal');
     musicErrorModalEl.classList.remove("hidden");
     $("#music-error-modal-text").text(message);
 };
 
-//COMPLETE! DESCRIPTION: function to close error modal
+//DESCRIPTION: function to close error modal
 let closeErrorModalFnc = function(){
     musicErrorModalEl.classList.add("hidden");
 };
 
-//COMPLETE! DESCRIPTION: function to display error modal for randomize button.
+//DESCRIPTION: function to display error modal for randomize button.
 let displayRandomErrorModalFnc = function(){
     let musicErrorModalEl = document.querySelector('#music-error-modal');
     musicErrorModalEl.classList.remove("hidden");
     $("#music-error-modal-text").text("We are still working on Music Randomizer. Try searching an artist.");
 };
 
-//COMPLETE! DESCRIPTION: function to remove previously created children through searches.
+//DESCRIPTION: function to remove previously created children through searches.
 function removeAllPreviousChildren(elem){
     while (elem.lastElementChild) {
         elem.removeChild(elem.lastElementChild);
@@ -309,8 +387,3 @@ closeMusicBtnEl.addEventListener("click", closeMusicModalFnc);
 closeErrorModalBtnEl.addEventListener("click", closeErrorModalFnc);
 musicSearchBtnEl.addEventListener("click", callMusicApiFnc);
 musicRandomBtnEl.addEventListener("click", displayRandomErrorModalFnc);
-
-//temporary code for api functions.
-// .then((response) => response.json())
-// .then((data) => console.log(data)) //used to confirm API fetch request works.
-//     if (response.ok){
