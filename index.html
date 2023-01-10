@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+    <head>
+        <title>Pumping Party Planner</title>
+        <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
+        <link rel="stylesheet" href="./assets/css/reset.css">
+        <link rel="stylesheet" href="./assets/css/variables.css">
+        <link rel="stylesheet" href="./assets/css/style.css">
+    </head>
+    <body>
+        <nav>
+            <h1 class="pt-20 text-white title text-6xl text-center font-extrabold">Pumping Party Planner</h1>
+        </nav>
+        <!-- Contianter for choice cards -->
+        <section class="fixed flex justify-center w-screen h-screen mt-20">
+          <!-- music card -->
+          <div class="flex border-gradient mr-10">
+            <section class="music-select card object-fill font-bold border rounded-3xl" role="button">
+              <h2 class="text-4xl bg-slate-400">Select your Music</h2>
+              <img src="./assets/imgs/music.jpg">
+            </section>
+          </div>
+          <!-- cocktail card -->
+            <div class="flex border-gradient ml-10">
+              <section class="cocktail-select card font-bold border rounded-3xl" id="cocktail-select" role="button">
+                <h2 class="text-4xl">Select your Cocktails</h2>
+                <img src="./assets/imgs/cocktail.jpg">
+              </section>
+            </div>
+        </section>
+        <!-- Play/Pause button -->
+        <section>
+            <img class="absolute playpause bottom-0 right-0 w-20 m-10" src="./assets/imgs/playbutton.png">
+        </section>
+        <!-- Music Modal -->
+        <section class = "hidden" id="music-modal">
+            <div class="relative z-10 modal-lg" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+              <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+              <div class="fixed inset-0 z-10 overflow-y-auto">
+                <!-- contents of modal -->
+                <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                  <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                    <!-- modal intro section -->
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                      <!-- close modal button -->
+                      <span class="float-right cursor-pointer" id="close-music-modal"><i class="fas fa-window-close"></i></span>
+                      <div class="sm:flex sm:items-start">
+                        <!-- Music Icon in circle -->
+                        <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-cadet-blue sm:mx-0 sm:h-10 sm:w-10">
+                          <i class="fa-solid fa-music"></i>                          
+                        </div>
+                        <!-- Modal intro text -->
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                          <h3 class="text-lg font-bold leading-6 text-gray-900" id="modal-title">Music Preferences</h3>
+                          <!-- Modal instructions -->
+                          <div class="mt-2">
+                            <p class="text-sm italic cadet-blue"> Filter music by genre or artist in the search criteria below.</p>
+                            <p class="text-sm italic cadet-blue"> Can't decide what to listen to?</p>
+                            <p class="text-sm italic cadet-blue"> Let us choose a random track for you to check out!</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Music Search section -->
+                    <div id= "music-search-section" class="bg-gray-50 px-3 py-3 flex-row items-stretch sm:flex-col  sm:px-6">
+                      <!-- Music Search Criteria options  -->
+                      <div id="music-radio-buttons" class="w-full grid place-items-center">
+                          <form class="p-3 b-2">
+                            <fieldset id="radio-fields">
+                              <legend class="font-bold pb-2">Choose Search Criteria</legend>
+                              <input type="radio" id="genre-search" name="search-choice" value="genre">
+                              <label for="genre-search" class="text-base">Genre</label>
+                              <input type="radio" id="artist-search" name="search-choice" value="artist">
+                              <label for="artist-search" class="text-base">Artist</label>
+                            </fieldset>
+                          <!-- user chosen criteria inputs -->
+                            <fieldset id="genre-fields" class="hidden py-2">
+                              <label for="genre-fields" class="font-bold text-base">Enter Genre:</label>
+                              <input type="text" id="genre-value" class="border rounded-xl p-1 h-5 text-base">
+                            </fieldset>
+                            <fieldset id="artist-fields" class="hidden py-2">
+                              <label for="artist-fields" class="font-bold text-base">Enter Artist name:</label>
+                              <input type="text" id="artist-value" class="border rounded-xl p-1 text-base">
+                            </fieldset>
+                          </form>
+                          <!-- User results - JS API calls -->
+                          <div id="music-results" class="hidden flex align=top sm:flex h-48 py-4">
+                            <div id="music-search-results" class="hidden py-4 leading-5"></div>
+                            <div id="music-image" class="hidden"></div>
+                          </div>                                                 
+                      </div>
+                    </div>
+                    <!-- buttons at bottom of modal -->
+                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:px-6 place-content-center">
+                      <!-- search -->
+                      <button type="button" id="music-search" class="inline-flex w-full justify-center rounded-md border border-transparent bg-ruby px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">Search</button>
+                      <!-- randomize -->
+                      <button type="button" id="music-randomize" class="mt-3 inline-flex w-full justify-center rounded-md border bg-space-cadet px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Randomize</button>
+                    </div>
+                    <!--Music Error Modal-->
+                    <div id="music-error-modal" class="hidden">
+                      <div class="relative z-20" aria-labelledby="modal-title" role="dialog" aria-modal="true" >
+                        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+                          <div class="fixed inset-0 z-10 overflow-y-auto">
+                            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                              <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                                <!-- Music Error Modal content -->
+                                  <div class="bg-white px-4 pt-5 pb-1 sm:p-6 sm:pb-4">
+                                      <div class="sm:flex sm:items-start">
+                                        <!-- Music Error Modal music icon -->
+                                          <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-cadet-blue sm:mx-0 sm:h-10 sm:w-10">
+                                              <i class="fa-solid fa-music"></i>
+                                          </div>   
+                                          <!-- Music Error Modal text -->                               
+                                          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                            <h3 class="text-lg font-bold leading-6 text-gray-900" id="music-modal-title">Error!
+                                              <p id="music-error-modal-text" class="text-base font-light cadet-blue"></p>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <!-- Music Error Modal Close button -->
+                                  <div class="bg-gray-50 px-3 py-3 flex-row items-stretch sm:flex-col  sm:px-6">
+                                    <button type="button" id="music-error-close-button" class="mt-3 inline-flex w-full justify-center rounded-md border bg-space-cadet px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">OK</button>
+                                  </div>
+                              </div>
+                            </div>
+                          </div>
+                      </div>
+                    </div> <!--end error modal-->
+                  </div>
+                </div>
+              </div>
+            </div>
+        </section>
+        <!--Cocktail Modal-->
+        <div id="cocktail-modal" class="hidden">
+            <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true" >
+              
+              <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+                <div class="fixed inset-0 z-10 overflow-y-auto">
+                    <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                    
+                    <div class="relative transform overflow-y-auto rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                        <div class="bg-white px-4 pt-5 pb-1 sm:p-6 sm:pb-4">
+                            <span class="float-right cursor-pointer" id="close-modal"><i class="fas fa-window-close"></i></span>
+                            <div class="sm:flex sm:items-start">
+                                <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-cadet-blue sm:mx-0 sm:h-10 sm:w-10">
+                                    <i class="fas fa-cocktail"></i>
+                                </div>                                  
+                                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                  <h3 class="text-lg font-bold leading-6 text-gray-900" id="modal-title">Cocktail Preferences
+                                    <div class="mt-2">
+                                      <p class="text-sm italic cadet-blue">Filter cocktails by name or ingredient in search criteria below.</p> 
+                                      <p class="text-sm italic cadet-blue">Can't decide?? </p>
+                                      <p class="text-sm italic cadet-blue">Let us choose a random cocktail for you!</p>
+                                  </div> 
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-3 py-3 flex-row items-stretch sm:flex-col  sm:px-6">
+                          <div id="radio-buttons" class="w-full grid place-items-center">
+                            <!--search section-->
+                            <form class="p-3 b-2">
+                              <fieldset id="radio-fields">
+                                <legend class="font-bold pb-2">Choose Search Criteria</legend>
+                                <input type="radio" id="by-name" name="search-options" value="name">
+                                <label for="by-name" class="text-base">Name</label>
+                                <input type="radio" id="by-ingredient" name="search-options" value="ingredient">
+                                <label for="by-ingredient" class="text-base">Ingredient</label>
+                                
+                              </fieldset>
+                            
+                            <fieldset id="name-fields" class="hidden py-2">
+                              <label for="cocktail-name" class="font-bold text-base">Enter cocktail name:</label>
+                              <input type="text" id="cocktail-name" class="border rounded-xl p-1 h-5 text-base">
+                            </fieldset>
+                            <fieldset id="ingredient-fields" class="hidden py-2">
+                              <label for="cocktail-ingredient" class="font-bold text-base">Enter cocktail ingredient:</label>
+                              <input type="text" id="cocktail-ingredient" class="border rounded-xl p-1 text-base">
+                            </fieldset>
+                            
+                            </form>
+                            <!--div contains all the results - dynamic part of modal-->
+                            <div id="results" class="hidden flex align=top sm:flex h-48 py-4">
+                              <!--list of cocktails-->
+                              <div id="search-results" class="hidden py-4 leading-5">
+                                
+                              </div>
+                              <!--image or ingredient-->
+                              <div id="search-image" class="hidden">
+                                
+                              </div>
+                            </div>             
+                          </div> 
+                          <!--buttons search and randomize-->
+                          <div class="bg-gray-50 px-4 py-3 sm:flex sm:px-6">
+                            <button type="button" id="search-button" class="inline-flex w-full justify-center rounded-md border border-transparent bg-ruby px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">Search</button>
+                            <button type="button" id="cancel-button" class="mt-3 inline-flex w-full justify-center rounded-md border bg-space-cadet px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Randomize</button>
+                          </div>
+                          
+                          
+                          <!--Error Modal-->
+                          <div id="error-modal" class="hidden">
+                            <div class="relative z-20" aria-labelledby="modal-title" role="dialog" aria-modal="true" >
+                              
+                              <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+                                <div class="fixed inset-0 z-10 overflow-y-auto">
+                                    <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                                    
+                                    <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                                        <div class="bg-white px-4 pt-5 pb-1 sm:p-6 sm:pb-4">
+                                            
+                                            <div class="sm:flex sm:items-start">
+                                                <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-cadet-blue sm:mx-0 sm:h-10 sm:w-10">
+                                                    <i class="fas fa-cocktail"></i>
+                                                </div>                                  
+                                                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                                  <h3 class="text-lg font-bold leading-6 text-gray-900" id="modal-title">Error!
+                                                    <p id="error-modal-text" class="text-base font-light cadet-blue"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-gray-50 px-3 py-3 flex-row items-stretch sm:flex-col  sm:px-6">
+                                          <button type="button" id="close-button" class="mt-3 inline-flex w-full justify-center rounded-md border bg-space-cadet px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">OK</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--end error modal-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+        </div>  
+    <script src="https://kit.fontawesome.com/b3cf47db47.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="./assets/js/cocktails.js"></script>
+    <script src="./assets/js/music-modal.js"></script>
+    </body>
+</html>
